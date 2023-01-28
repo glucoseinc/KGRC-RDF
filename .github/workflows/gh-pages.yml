@@ -37,6 +37,8 @@ jobs:
     - name: build
       run: npm run build
       working-directory: ./ui
+      env:
+        GHPAGES: 'true'
 
     # 静的なHTMLとしてNext.jsアプリを生成する
     # プロジェクトルート直下にoutディレクトリができる
@@ -44,6 +46,8 @@ jobs:
     - name: export
       run: npm run export
       working-directory: ./ui
+      env:
+        GHPAGES: 'true'
 
     # gh-pagesブランチにoutディレクトリの中身をプッシュする
     # gh-pagesブランチは自動的に作成される
