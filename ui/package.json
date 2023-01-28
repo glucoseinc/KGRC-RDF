@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "gh-build": "GHPAGES=true next build",
     "start": "next start",
-    "export": "EXPORT=true next export",
+    "export": "GHPAGES=true next export",
     "lint": "next lint"
   },
   "dependencies": {
