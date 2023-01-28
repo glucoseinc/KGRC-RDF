@@ -1,5 +1,5 @@
 const isProd = process.env.EXPORT === 'true';
-
+console.log(process.env)
 /** @type {import('next').NextConfig} */
 module.exports = {
   assetPrefix: isProd ? '/risk-ui' : '',
