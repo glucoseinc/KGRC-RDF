@@ -8,7 +8,10 @@ export type ActivityQueryType = {
 };
 
 const makeClient = () => {
-  return new ParsingClient({ endpointUrl: "http://localhost:8080/sparql" });
+  const endpointUrl =
+    process.env.NEXT_PUBLIC_SPARQL_ENDPOINT ??
+    "http://kgrc4si.ml:7200/repositories/KGRC4SIv01";
+  return new ParsingClient({ endpointUrl });
 };
 
 export const PREFIXES = {
