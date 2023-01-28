@@ -37,8 +37,7 @@ select distinct ?activity ?label where {
 	?type rdfs:subClassOf* ho:Activity .
     ?activity a ?type .
     ?activity rdfs:label ?label .
-} limit 100`;
-
+} limit 1000`;
 export const fetchActivity: () => Promise<ActivityQueryType[]> = async () => {
   const result = (await makeClient().query.select(
     activityQuery
@@ -150,13 +149,20 @@ export const fetchState = async (
   }  
   order by ASC(?situation)
   `;
-  const result = (await makeClient().query.select(
+  const situationsResult = (await makeClient().query.select(
     situationQuery
   )) as SituationQueryType[];
 
+  situationsResult.sort((a, b) => {
+    if (a.situation.value.length === b.situation.value.length) {
+      return a < b ? -1 : 1;
+    } else {
+      return a.situation.value.length < b.situation.value.length ? -1 : 1;
+    }
+  });
   const data: { [key: string]: StateObject[] } = {};
   let situationNumber = 0;
-  for (const situation of result) {
+  for (const situation of situationsResult) {
     const objectsQuery = `
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       PREFIX ex: <http://example.org/virtualhome2kg/instance/>
