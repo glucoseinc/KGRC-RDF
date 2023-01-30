@@ -4,6 +4,7 @@ import {
   InputLabel,
   FormControl,
   SelectChangeEvent,
+  ListSubheader,
 } from "@mui/material";
 import {
   fetchActivity,
@@ -15,7 +16,13 @@ import {
   StateObject,
 } from "../utils/sparql";
 import type { NextPage } from "next";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Table,
   Box,
@@ -30,6 +37,11 @@ import { yellow } from "@mui/material/colors";
 import { ObjectTable } from "../components/ObjectTable";
 import dynamic from "next/dynamic";
 
+type ActivityListType = {
+  type: string;
+  activities: ActivityQueryType[];
+};
+
 const Graph = dynamic(() => import("../components/KnowladgeGraph"), {
   ssr: false,
   loading: () => {
@@ -41,11 +53,28 @@ const Home: NextPage = () => {
   useEffect(() => {
     (async () => {
       const data = await fetchActivity();
-      setActivities(data);
+      const values = data.reduce<{ [key: string]: ActivityQueryType[] }>(
+        (prev, cur) => {
+          if (!(cur.label.value in prev)) {
+            prev[cur.label.value] = [];
+          }
+          prev[cur.label.value].push(cur);
+          return prev;
+        },
+        {}
+      );
+      setActivityList(
+        Object.entries(values).map(([key, val]) => {
+          return {
+            type: key,
+            activities: val,
+          };
+        })
+      );
     })();
   }, []);
 
-  const [activities, setActivities] = useState<ActivityQueryType[]>([]);
+  const [activityList, setActivityList] = useState<ActivityListType[]>([]);
   const [activity, setActivity] = useState<ActivityQueryType | undefined>();
 
   const [events, setEvents] = useState<EventQueryType[]>([]);
@@ -109,10 +138,11 @@ const Home: NextPage = () => {
 
   const onChangeActivity = useCallback(
     (e: SelectChangeEvent<string>) => {
-      const a = activities.filter(
-        (v) => v.activity.value === e.target.value
-      )[0];
-
+      const a = activityList
+        .flatMap(({ activities }) => activities)
+        .filter((v) => {
+          return v.activity.value === e.target.value;
+        })[0];
       setActivity(a);
       setIsPlaying(false);
       setCurrentTime(0);
@@ -120,7 +150,7 @@ const Home: NextPage = () => {
       setEvents([]);
       setDurations([]);
     },
-    [activities]
+    [activityList]
   );
   const videoFile = useMemo(() => {
     if (!activity) {
@@ -192,6 +222,21 @@ const Home: NextPage = () => {
     return null;
   }, [currentTime, durations, events]);
 
+  const activityNodes = useMemo(() => {
+    const nodes = activityList.map(({ type, activities }) => {
+      return [
+        <ListSubheader>{type}</ListSubheader>,
+        activities.map(({ activity, scene }) => {
+          return (
+            <MenuItem key={activity.value} value={activity.value}>
+              {type} - {scene.value.replace(PREFIXES.ex, "")}
+            </MenuItem>
+          );
+        }),
+      ];
+    });
+    return nodes.flatMap((a) => a).flatMap((b) => b);
+  }, [activityList]);
   return (
     <div>
       <FormControl fullWidth>
@@ -203,13 +248,7 @@ const Home: NextPage = () => {
           id="demo-simple-select"
           label="Videoを選択"
         >
-          {activities.map(({ activity, label }, idx) => {
-            return (
-              <MenuItem key={idx} value={activity.value}>
-                {label.value}
-              </MenuItem>
-            );
-          })}
+          {activityNodes}
         </Select>
       </FormControl>
       <Box

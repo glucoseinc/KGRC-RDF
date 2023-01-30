@@ -5,6 +5,7 @@ import isEqual from "lodash.isequal";
 export type ActivityQueryType = {
   activity: NamedNode;
   label: Literal;
+  scene: NamedNode;
 };
 
 const makeClient = () => {
@@ -32,15 +33,18 @@ export const PREFIXES = {
   ob: "http://raw.githubusercontent.com/aistairc/HomeObjectOntology/main/HomeObject.owl#",
 };
 
-const activityQuery = `prefix ho: <http://www.owl-ontologies.com/VirtualHome.owl#>
-prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+const activityQuery = `
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ho: <http://www.owl-ontologies.com/VirtualHome.owl#>
+PREFIX vh2kg: <http://example.org/virtualhome2kg/ontology/>
 
-select distinct ?activity ?label where { 
-	?type rdfs:subClassOf* ho:Activity .
-    ?activity a ?type .
+select DISTINCT ?activity ?label ?scene where {
+    ?activity a ho:Activity  .
     ?activity rdfs:label ?label .
-} limit 1000`;
+    ?activity vh2kg:virtualHome ?scene .
+}
+`;
+
 export const fetchActivity: () => Promise<ActivityQueryType[]> = async () => {
   const result = (await makeClient().query.select(
     activityQuery
