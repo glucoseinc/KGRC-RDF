@@ -3,6 +3,7 @@ import ReactForceGraph2d from "react-force-graph-2d";
 import type { NodeObject, LinkObject } from "react-force-graph-2d";
 import { NamedNode } from "rdf-js";
 import { fetchTriples, PREFIXES } from "../utils/sparql";
+import { fontSize, height } from "@mui/system";
 
 type NodeType = NodeObject & {
   label?: string;
@@ -143,7 +144,7 @@ const KnowladgeGraph: React.FC<{ eventNode: NamedNode<string> | null }> = ({
       const bckgDimensions = [textWidth, fontSize].map(
         (n) => n + fontSize * 0.2
       ); // some padding
-      // ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+      // ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
       // ctx.fillRect(
       //   x - bckgDimensions[0] / 2,
       //   y - bckgDimensions[1] / 2,
@@ -161,6 +162,45 @@ const KnowladgeGraph: React.FC<{ eventNode: NamedNode<string> | null }> = ({
     [eventNode?.value, fetchedDetailNodes]
   );
 
+  const linkCanvasObject = useCallback(
+    (
+      link: LinkObject & { label: string },
+      ctx: CanvasRenderingContext2D,
+      globalScale: number
+    ) => {
+      const source = link.source as NodeObject;
+      const target = link.target as NodeObject;
+      const sourceX = source.x ?? 0;
+      const sourceY = source.y ?? 0;
+      const targetX = target.x ?? 0;
+      const targetY = target.y ?? 0;
+
+      const label = link.label as string;
+      ctx.strokeStyle = "rgba(255,255,255,0.3)";
+      ctx.lineWidth = 1 / globalScale;
+      ctx.beginPath();
+      ctx.moveTo(sourceX, sourceY);
+      ctx.lineTo(targetX, targetY);
+      ctx.stroke();
+
+      ctx.save();
+      const fontSize = 10000 / globalScale;
+      ctx.font = `#${fontSize}px Sans-Serif`;
+      ctx.fillStyle = "white";
+      const centerX = (sourceX + targetX) / 2;
+      const centerY = (sourceY + targetY) / 2;
+      let angle =
+        (Math.atan2(targetY - sourceY, targetX - sourceX) * 180) / Math.PI;
+      if (angle > 90 || angle < -90) {
+        angle += 180;
+      }
+      ctx.translate(centerX, centerY);
+      ctx.rotate((angle * Math.PI) / 180);
+      ctx.fillText(label, 0, 0);
+      ctx.restore();
+    },
+    []
+  );
   const onNodeClick = useCallback(
     (node: NodeObject) => {
       addNode(node.id as string);
@@ -171,15 +211,20 @@ const KnowladgeGraph: React.FC<{ eventNode: NamedNode<string> | null }> = ({
     <ReactForceGraph2d
       width={1153}
       height={500}
-      nodeLabel="label"
-      linkLabel="label"
-      // linkColor="color"
       graphData={{
         nodes: nodesArray,
         links: _links,
       }}
       backgroundColor="#101020"
       nodeAutoColorBy="group"
+      linkDirectionalArrowColor={"green"}
+      linkCanvasObject={
+        linkCanvasObject as (
+          link: LinkObject,
+          ctx: CanvasRenderingContext2D,
+          scale: number
+        ) => void
+      }
       onNodeClick={onNodeClick}
       nodeCanvasObject={nodeCanvasObject}
       nodePointerAreaPaint={(node, color, ctx) => {

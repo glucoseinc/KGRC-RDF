@@ -226,7 +226,7 @@ const Home: NextPage = () => {
   const activityNodes = useMemo(() => {
     const nodes = activityList.map(({ type, activities }) => {
       return [
-        <ListSubheader>{type}</ListSubheader>,
+        <ListSubheader key={type}>{type}</ListSubheader>,
         activities.map(({ activity, scene }) => {
           return (
             <MenuItem key={activity.value} value={activity.value}>

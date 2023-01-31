@@ -533,10 +533,10 @@ export const ObjectTable: React.FC<{
                     >
                       {Array.from(state).map((s) => {
                         return (
-                          <>
+                          <React.Fragment key={s}>
                             {s}
                             <br />
-                          </>
+                          </React.Fragment>
                         );
                       })}
                       {/* <URisLink
