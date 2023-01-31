@@ -6,13 +6,14 @@ export type ActivityQueryType = {
   activity: NamedNode;
   label: Literal;
   scene: NamedNode;
+  type: NamedNode;
 };
 
 const makeClient = () => {
-  const endpointUrl =
-    process.env.NEXT_PUBLIC_SPARQL_ENDPOINT ??
-    "http://kgrc4si.ml:7200/repositories/KGRC4SIv01";
-  return new ParsingClient({ endpointUrl });
+  const endpointUrl = "http://kgrc4si.ml:7200/repositories/KGRC4SIv01";
+  return new ParsingClient({
+    endpointUrl: `${endpointUrl}?infer=false`,
+  });
 };
 
 export const PREFIXES = {
@@ -38,10 +39,10 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX ho: <http://www.owl-ontologies.com/VirtualHome.owl#>
 PREFIX vh2kg: <http://example.org/virtualhome2kg/ontology/>
 
-select DISTINCT ?activity ?label ?scene where {
-    ?activity a ho:Activity  .
-    ?activity rdfs:label ?label .
+select DISTINCT * where {
     ?activity vh2kg:virtualHome ?scene .
+    ?activity a ?type .
+    ?activity rdfs:label ?label .
 }
 `;
 

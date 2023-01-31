@@ -22,11 +22,6 @@ services:
         -Dhealth.max.query.time.seconds=60
         -Dgraphdb.append.request.id.headers=true
         -Dreuse.vars.in.subselects=true
-  nextjs:
-    build: ui
-    ports:
-      - 3000:3000
-
   nginx:
     image: nginx:latest
     depends_on:
@@ -34,7 +29,11 @@ services:
       - nextjs
     ports:
       - 8080:80
-    environment:
-      NEXT_PUBLIC_SPARQL_ENDPOINT: http://localhost:8080/sparql
     volumes:
       - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
+  nextjs:
+    build: ui
+    ports:
+      - 3000:3000
+    environment:
+      NEXT_PUBLIC_SPARQL_ENDPOINT: http://localhost:8080/sparql

@@ -55,10 +55,11 @@ const Home: NextPage = () => {
       const data = await fetchActivity();
       const values = data.reduce<{ [key: string]: ActivityQueryType[] }>(
         (prev, cur) => {
-          if (!(cur.label.value in prev)) {
-            prev[cur.label.value] = [];
+          const type = cur.type.value.replace(PREFIXES.ho, "ho:");
+          if (!(type in prev)) {
+            prev[type] = [];
           }
-          prev[cur.label.value].push(cur);
+          prev[type].push(cur);
           return prev;
         },
         {}
