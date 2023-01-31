@@ -531,12 +531,20 @@ export const ObjectTable: React.FC<{
                         backgroundColor: diffScoreToColor(score.state),
                       }}
                     >
-                      <URisLink
+                      {Array.from(state).map((s) => {
+                        return (
+                          <>
+                            {s}
+                            <br />
+                          </>
+                        );
+                      })}
+                      {/* <URisLink
                         popupInfo={popupInfo}
                         popupText={popupText}
                         onClick={setPopupInfo}
                         uris={Array.from(state)}
-                      />
+                      /> */}
                     </TableCell>
                   )}
                   {showItems.close && (
