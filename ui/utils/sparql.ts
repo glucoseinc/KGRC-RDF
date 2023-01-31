@@ -45,7 +45,7 @@ select DISTINCT * where {
     ?activity vh2kg:virtualHome ?scene .
     ?activity a ?type .
     ?activity rdfs:label ?label .
-}
+} order by asc(?activity)
 `;
 
 export const fetchActivity: () => Promise<ActivityQueryType[]> = async () => {
