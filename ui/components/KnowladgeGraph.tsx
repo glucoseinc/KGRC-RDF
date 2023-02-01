@@ -138,6 +138,10 @@ const KnowladgeGraph: React.FC<{ eventNode: NamedNode<string> | null }> = ({
       } else if (fetchedDetailNodes[n.id ?? ""]) {
         color = "yellow";
       }
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      ctx.save();
       const fontSize = 14 / globalScale;
       ctx.font = `${fontSize}px Sans-Serif`;
       const textWidth = ctx.measureText(label).width;
@@ -152,10 +156,9 @@ const KnowladgeGraph: React.FC<{ eventNode: NamedNode<string> | null }> = ({
       //   bckgDimensions[1]
       // );
 
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
       ctx.fillStyle = color;
       ctx.fillText(label, x, y);
+      ctx.restore();
 
       n.__bckgDimensions = bckgDimensions; // to re-use in nodePointerAreaPaint
     },
@@ -184,8 +187,6 @@ const KnowladgeGraph: React.FC<{ eventNode: NamedNode<string> | null }> = ({
       ctx.stroke();
 
       ctx.save();
-      const fontSize = 10000 / globalScale;
-      ctx.font = `#${fontSize}px Sans-Serif`;
       ctx.fillStyle = "white";
       const centerX = (sourceX + targetX) / 2;
       const centerY = (sourceY + targetY) / 2;
@@ -196,6 +197,8 @@ const KnowladgeGraph: React.FC<{ eventNode: NamedNode<string> | null }> = ({
       }
       ctx.translate(centerX, centerY);
       ctx.rotate((angle * Math.PI) / 180);
+      const fontSize = Math.min(10 / globalScale, 1.6);
+      ctx.font = `${fontSize}pt Sans-Serif`;
       ctx.fillText(label, 0, 0);
       ctx.restore();
     },
