@@ -197,7 +197,7 @@ const KnowladgeGraph: React.FC<{ eventNode: NamedNode<string> | null }> = ({
       }
       ctx.translate(centerX, centerY);
       ctx.rotate((angle * Math.PI) / 180);
-      const fontSize = Math.min(10 / globalScale, 1.6);
+      const fontSize = Math.min(12 / globalScale, 1.4);
       ctx.font = `${fontSize}pt Sans-Serif`;
       ctx.fillText(label, 0, 0);
       ctx.restore();
