@@ -55,6 +55,29 @@ export const fetchActivity: () => Promise<ActivityQueryType[]> = async () => {
   return result;
 };
 
+export type ActivityTypesQueryType = {
+  subClassOf: NamedNode;
+};
+
+export const fetchActivityTypes: (
+  activity: NamedNode
+) => Promise<ActivityTypesQueryType[]> = async (activity) => {
+  const activityTypesQuery = `
+  prefix ho: <http://www.owl-ontologies.com/VirtualHome.owl#>
+  prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  
+  select distinct ?subClassOf where { 
+    <${activity.value}> a ?type .
+    ?type rdfs:subClassOf+ ?subClassOf .
+  } limit 100
+  `;
+  const result = (await makeClient().query.select(
+    activityTypesQuery
+  )) as ActivityTypesQueryType[];
+  return result;
+};
+
 export type EventQueryType = {
   event: NamedNode;
   duration: Literal;

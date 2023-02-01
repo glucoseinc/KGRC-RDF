@@ -36,6 +36,7 @@ import {
 import { yellow } from "@mui/material/colors";
 import { ObjectTable } from "../components/ObjectTable";
 import dynamic from "next/dynamic";
+import { makeMoviePath } from "../utils/movieDir";
 
 type ActivityListType = {
   type: string;
@@ -77,6 +78,7 @@ const Home: NextPage = () => {
 
   const [activityList, setActivityList] = useState<ActivityListType[]>([]);
   const [activity, setActivity] = useState<ActivityQueryType | undefined>();
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   const [events, setEvents] = useState<EventQueryType[]>([]);
   const [states, setStates] = useState<{ [key: string]: StateObject[] }>({});
@@ -109,6 +111,12 @@ const Home: NextPage = () => {
         const ds = result.map((v) => {
           return Number(v.duration.value) / 1.2686;
         });
+        const videoUrl = await makeMoviePath(
+          activity.activity,
+          activity.label.value,
+          activity.scene.value
+        );
+        setVideoUrl(videoUrl);
 
         const durations: number[] = [];
         let before = 0;
@@ -272,7 +280,7 @@ const Home: NextPage = () => {
               onPause={onPause}
               onLoadedData={onLoadVideo}
               onSeeking={seekingUpdate}
-              src={`/video/${videoFile}`}
+              src={videoUrl ?? ""}
             />
             <Box flex="2">
               {events ? (
