@@ -3,7 +3,6 @@ import ReactForceGraph2d from "react-force-graph-2d";
 import type { NodeObject, LinkObject } from "react-force-graph-2d";
 import { NamedNode } from "rdf-js";
 import { fetchTriples, PREFIXES } from "../utils/sparql";
-import { fontSize, height } from "@mui/system";
 
 type NodeType = NodeObject & {
   label?: string;
@@ -16,12 +15,14 @@ type LinkType = LinkObject & {
   label: string;
   color?: string;
   value?: number;
+  predicates?: string;
 };
 
 type LinkValueType = {
   source: string;
   target: string;
   label: string;
+  predicates?: string;
 };
 
 const shortUri = (nodeUri: string) => {
@@ -91,7 +92,27 @@ const KnowladgeGraph: React.FC<{ eventNode: NamedNode<string> | null }> = ({
         };
         return value;
       });
-      setLinks([...links, ...linkValues]);
+      const values = linkValues.reduce<{ [key: string]: LinkValueType[] }>(
+        (prev, cur) => {
+          if (!(cur.target in prev)) {
+            prev[cur.target] = [];
+          }
+          prev[cur.target].push(cur);
+          return prev;
+        },
+        {}
+      );
+      const linkData = Object.values(values).flatMap<LinkValueType>((vs) => {
+        if (vs.length === 1) {
+          return vs;
+        }
+        return {
+          ...vs[0],
+          label: `${vs.length}Predicates`,
+          predicates: vs.map(({ label }) => label).join("<br>"),
+        };
+      });
+      setLinks([...links, ...linkData]);
     },
     [fetchedDetailNodes, nodes, links]
   );
@@ -115,11 +136,12 @@ const KnowladgeGraph: React.FC<{ eventNode: NamedNode<string> | null }> = ({
   }, [nodes]);
 
   const _links: LinkType[] = useMemo(() => {
-    return links.map(({ source, target, label }) => {
+    return links.map(({ source, target, label, predicates }) => {
       return {
         source,
         target,
         label,
+        predicates,
       };
     });
   }, [links]);
@@ -167,7 +189,7 @@ const KnowladgeGraph: React.FC<{ eventNode: NamedNode<string> | null }> = ({
 
   const linkCanvasObject = useCallback(
     (
-      link: LinkObject & { label: string },
+      link: LinkObject & { label: string; predicates?: string },
       ctx: CanvasRenderingContext2D,
       globalScale: number
     ) => {
@@ -197,8 +219,13 @@ const KnowladgeGraph: React.FC<{ eventNode: NamedNode<string> | null }> = ({
       }
       ctx.translate(centerX, centerY);
       ctx.rotate((angle * Math.PI) / 180);
-      const fontSize = Math.min(12 / globalScale, 1.4);
-      ctx.font = `${fontSize}pt Sans-Serif`;
+      const fontSize = Math.min(14 / globalScale, 1.5);
+      if (link.predicates) {
+        ctx.font = `bold ${fontSize}px sans-serif`;
+        ctx.fillStyle = "pink";
+      } else {
+        ctx.font = `${fontSize}px sans-serif`;
+      }
       ctx.fillText(label, 0, 0);
       ctx.restore();
     },
@@ -221,6 +248,8 @@ const KnowladgeGraph: React.FC<{ eventNode: NamedNode<string> | null }> = ({
       backgroundColor="#101020"
       nodeAutoColorBy="group"
       linkDirectionalArrowColor={"green"}
+      nodeLabel="label"
+      linkLabel="predicates"
       linkCanvasObject={
         linkCanvasObject as (
           link: LinkObject,
