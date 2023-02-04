@@ -17,6 +17,7 @@ COPY . .
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_PUBLIC_SPARQL_ENDPOINT=http://localhost:8080/sparql
 
 # If using npm comment out above and use below instead
 RUN npm run build
