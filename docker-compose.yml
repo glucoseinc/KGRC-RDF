@@ -32,6 +32,7 @@ services:
     volumes:
       - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
   nextjs:
-    build: ui
-    ports:
-      - 3000:3000
+    build:
+      context: ui
+      args:
+        NEXT_PUBLIC_SPARQL_ENDPOINT: http://localhost:8080/sparql

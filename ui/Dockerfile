@@ -10,6 +10,7 @@ RUN npm ci
 
 # Rebuild the source code only when needed
 FROM node:16-alpine AS builder
+ARG NEXT_PUBLIC_SPARQL_ENDPOINT
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -17,7 +18,6 @@ COPY . .
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 ENV NEXT_TELEMETRY_DISABLED 1
-ENV NEXT_PUBLIC_SPARQL_ENDPOINT=http://localhost:8080/sparql
 
 # If using npm comment out above and use below instead
 RUN npm run build
