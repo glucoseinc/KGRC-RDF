@@ -12,7 +12,7 @@ export type ActivityQueryType = {
 const makeClient = () => {
   const endpointUrl =
     process.env.NEXT_PUBLIC_SPARQL_ENDPOINT ??
-    "http://kgrc4si.ml:7200/repositories/KGRC4SIv01";
+    "https://kgrc4si.ml/graph/repositories/KGRC4SIv01";
   return new ParsingClient({
     endpointUrl: `${endpointUrl}?infer=false`,
   });
