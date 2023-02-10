@@ -42,7 +42,7 @@ jobs:
     # プロジェクトルート直下にoutディレクトリができる
     # そのなかに、HTMLファイル群と、それらが読み込むJSファイル群を収めた_nextディレクトリがある
     - name: export
-      run: npm run gh-export
+      run: npm run export
       working-directory: ./ui
     
     # gh-pagesブランチにoutディレクトリの中身をプッシュする
